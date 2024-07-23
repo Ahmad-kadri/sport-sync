@@ -1,25 +1,41 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+// src/App.tsx
+import React, { useEffect, useState } from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from './firebase';
+import Navbar from './components/Navbar';
+import SignIn from './components/Auth/SignIn';
+import SignUp from './components/Auth/SignUp';
+import GroupList from './components/Group/GroupList';
+import GroupDetails from './components/Group/GroupDetail';
+import CreateGroup from './components/Group/CreateGroup';
+import UserProfile from './components/Profile/UserProfile';
 
-function App() {
+const App: React.FC = () => {
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
+
+    // Clean up the subscription on unmount
+    return () => unsubscribe();
+  }, []);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      {user && <Navbar  user={user}/>} {/* Render Navbar only if user is logged in */}
+      <Routes>
+        <Route path="/signin" element={<SignIn />} />
+        <Route path="/signup" element={<SignUp />} />
+        <Route path="/profile" element={<UserProfile />} />
+        <Route path="/groups" element={<GroupList />} />
+        <Route path="/groups/:groupId" element={<GroupDetails />} />
+        <Route path="/create-group" element={user ? <CreateGroup /> : <SignIn />} />
+        <Route path="/" element={<GroupList />} />
+      </Routes>
+    </Router>
   );
 }
 
