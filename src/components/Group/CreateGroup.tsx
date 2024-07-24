@@ -102,10 +102,10 @@ const CreateGroup: React.FC<CreateGroupProps> = ({ open, onClose, onGroupCreated
 
   return (
     <Container>
-      <Dialog open={open} onClose={onClose}>
-        <DialogTitle>Create a New Group</DialogTitle>
+      <Dialog open={open} onClose={onClose} aria-labelledby="create-group-dialog-title">
+        <DialogTitle id="create-group-dialog-title">Create a New Group</DialogTitle>
         <DialogContent>
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} aria-labelledby="create-group-form">
             <TextField
               label="Title"
               value={title}
@@ -113,6 +113,7 @@ const CreateGroup: React.FC<CreateGroupProps> = ({ open, onClose, onGroupCreated
               fullWidth
               margin="normal"
               required
+              aria-required="true"
             />
             <TextField
               label="Description"
@@ -121,6 +122,7 @@ const CreateGroup: React.FC<CreateGroupProps> = ({ open, onClose, onGroupCreated
               fullWidth
               margin="normal"
               required
+              aria-required="true"
             />
             <TextField
               label="Location"
@@ -129,6 +131,7 @@ const CreateGroup: React.FC<CreateGroupProps> = ({ open, onClose, onGroupCreated
               fullWidth
               margin="normal"
               required
+              aria-required="true"
             />
             <TextField
               label="Time"
@@ -138,6 +141,7 @@ const CreateGroup: React.FC<CreateGroupProps> = ({ open, onClose, onGroupCreated
               fullWidth
               margin="normal"
               required
+              aria-required="true"
             />
             <Autocomplete
               multiple
@@ -147,6 +151,7 @@ const CreateGroup: React.FC<CreateGroupProps> = ({ open, onClose, onGroupCreated
               renderInput={(params) => (
                 <TextField {...params} variant="outlined" label="Add Participants" placeholder="Select participants" />
               )}
+              aria-required="true"
             />
             <DialogActions>
               <Button onClick={onClose} color="primary">

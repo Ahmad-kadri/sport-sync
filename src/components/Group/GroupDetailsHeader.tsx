@@ -1,5 +1,5 @@
 import React from 'react';
-import { Typography, Box, Divider } from '@mui/material';
+import { Typography, Box } from '@mui/material';
 
 interface Group {
   title: string;
@@ -10,8 +10,8 @@ interface Group {
 
 const GroupDetailsHeader: React.FC<{ group: Group }> = ({ group }) => {
   return (
-    <Box >
-      <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 1 }}>
+    <Box>
+      <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 1 }} aria-level={1}>
         {group.title}
       </Typography>
       <Typography variant="body1" sx={{ mb: 2, color: 'text.primary' }}>

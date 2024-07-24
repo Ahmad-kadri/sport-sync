@@ -1,5 +1,5 @@
 import React from 'react';
-import { Typography, Box, Divider, ListItem, List, ListItemText } from '@mui/material';
+import { Typography, Box, Divider, List, ListItem, ListItemText } from '@mui/material';
 import useFetchParticipants from '../Hooks/useFetchParticipants';
 
 interface Participant {
@@ -14,14 +14,14 @@ const GroupParticipants: React.FC<{ groupId: string }> = ({ groupId }) => {
 
   return (
     <Box mt={3}>
-      <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 2 }}>
+      <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 2 }} role="heading" aria-level={2}>
         Participants
       </Typography>
       <Divider sx={{ mb: 1 }} />
-      <List>
+      <List aria-label="List of participants">
         {participants.length > 0 ? (
           participants.map((participant) => (
-            <ListItem key={participant.id} sx={{ borderBottom: '1px solid #ddd' }}>
+            <ListItem key={participant.id} sx={{ borderBottom: '1px solid #ddd' }} aria-labelledby={`participant-${participant.id}`}>
               <ListItemText
                 primary={`${participant.name} ${participant.surname}`}
                 secondary={participant.email}

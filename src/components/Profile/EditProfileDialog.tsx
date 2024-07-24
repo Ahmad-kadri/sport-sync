@@ -42,15 +42,21 @@ const EditProfileDialog: React.FC<EditProfileDialogProps> = ({ open, onClose, us
   };
 
   return (
-    <Dialog open={open} onClose={onClose}>
-      <DialogTitle>Edit Profile</DialogTitle>
-      <DialogContent>
+    <Dialog 
+      open={open} 
+      onClose={onClose}
+      aria-labelledby="edit-profile-dialog-title"
+      aria-describedby="edit-profile-dialog-description"
+    >
+      <DialogTitle id="edit-profile-dialog-title">Edit Profile</DialogTitle>
+      <DialogContent id="edit-profile-dialog-description">
         <TextField
           label="Name"
           value={name}
           onChange={(e) => setName(e.target.value)}
           fullWidth
           margin="normal"
+          aria-required="true"
         />
         <TextField
           label="Surname"
@@ -58,17 +64,33 @@ const EditProfileDialog: React.FC<EditProfileDialogProps> = ({ open, onClose, us
           onChange={(e) => setSurname(e.target.value)}
           fullWidth
           margin="normal"
+          aria-required="true"
         />
-        {error && <Alert severity="error">{error}</Alert>}
-        {message && <Alert severity="success">{message}</Alert>}
+        {error && (
+          <Alert severity="error" aria-live="assertive">
+            {error}
+          </Alert>
+        )}
+        {message && (
+          <Alert severity="success" aria-live="polite">
+            {message}
+          </Alert>
+        )}
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
-        <Button onClick={handleUpdate} variant="contained" color="primary">
+        <Button onClick={onClose} aria-label="Cancel">
+          Cancel
+        </Button>
+        <Button onClick={handleUpdate} variant="contained" color="primary" aria-label="Update Profile">
           Update
         </Button>
       </DialogActions>
-      <Snackbar open={!!message} autoHideDuration={6000} onClose={() => setMessage('')}>
+      <Snackbar 
+        open={!!message} 
+        autoHideDuration={6000} 
+        onClose={() => setMessage('')} 
+        aria-live="polite"
+      >
         <Alert onClose={() => setMessage('')} severity="success">
           {message}
         </Alert>

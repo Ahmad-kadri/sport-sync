@@ -86,10 +86,20 @@ const UserProfile: React.FC = () => {
             </Box>
             <Divider style={{ marginBottom: '16px' }} />
             <Box display="flex" justifyContent="space-between">
-              <Button variant="contained" color="primary" onClick={() => setOpenEditDialog(true)}>
+              <Button 
+                variant="contained" 
+                color="primary" 
+                onClick={() => setOpenEditDialog(true)}
+                aria-label="Edit Profile"
+              >
                 Edit Profile
               </Button>
-              <Button variant="contained" color="secondary" onClick={() => setOpenDeleteDialog(true)}>
+              <Button 
+                variant="contained" 
+                color="secondary" 
+                onClick={() => setOpenDeleteDialog(true)}
+                aria-label="Delete Account"
+              >
                 Delete Account
               </Button>
             </Box>
@@ -98,14 +108,26 @@ const UserProfile: React.FC = () => {
               onClose={() => setOpenEditDialog(false)}
               userInfo={userInfo}
             />
-            <Dialog open={openDeleteDialog} onClose={() => setOpenDeleteDialog(false)}>
-              <DialogTitle>Confirm Delete</DialogTitle>
-              <DialogContent>
+            <Dialog 
+              open={openDeleteDialog} 
+              onClose={() => setOpenDeleteDialog(false)}
+              aria-labelledby="delete-dialog-title"
+              aria-describedby="delete-dialog-description"
+            >
+              <DialogTitle id="delete-dialog-title">Confirm Delete</DialogTitle>
+              <DialogContent id="delete-dialog-description">
                 <Typography>Are you sure you want to delete your account? This action cannot be undone.</Typography>
               </DialogContent>
               <DialogActions>
-                <Button onClick={() => setOpenDeleteDialog(false)}>Cancel</Button>
-                <Button onClick={handleDelete} color="secondary" variant="contained">
+                <Button onClick={() => setOpenDeleteDialog(false)} aria-label="Cancel">
+                  Cancel
+                </Button>
+                <Button 
+                  onClick={handleDelete} 
+                  color="secondary" 
+                  variant="contained"
+                  aria-label="Confirm Delete"
+                >
                   Confirm
                 </Button>
               </DialogActions>
@@ -115,7 +137,12 @@ const UserProfile: React.FC = () => {
           <Typography>No user information available.</Typography>
         )}
       </Paper>
-      <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={handleCloseSnackbar}>
+      <Snackbar 
+        open={openSnackbar} 
+        autoHideDuration={6000} 
+        onClose={handleCloseSnackbar}
+        aria-live="assertive"
+      >
         <Alert onClose={handleCloseSnackbar} severity={error ? 'error' : 'success'}>
           {error || message}
         </Alert>

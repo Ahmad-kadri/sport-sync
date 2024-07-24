@@ -1,4 +1,3 @@
-// src/components/GroupDetails.tsx
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { db } from '../../firebase';
@@ -22,13 +21,12 @@ const GroupDetails: React.FC = () => {
   const [group, setGroup] = useState<Group | null>(null);
   const [loading, setLoading] = useState(true);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [isChatPanelOpen, setIsChatPanelOpen] = useState(false); // State for chat panel
-  const navigate = useNavigate(); // Initialize the navigate function
+  const [isChatPanelOpen, setIsChatPanelOpen] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!groupId) return;
 
-    // Listen for real-time updates to the group details
     const groupDocRef = doc(db, 'groups', groupId);
     const unsubscribeGroup = onSnapshot(groupDocRef, (docSnapshot) => {
       if (docSnapshot.exists()) {
@@ -62,7 +60,6 @@ const GroupDetails: React.FC = () => {
   };
 
   const handleGroupUpdated = () => {
-    // Refresh the group details to reflect the updates
     setLoading(true);
     const groupDocRef = doc(db, 'groups', groupId!);
     onSnapshot(groupDocRef, (docSnapshot) => {
@@ -83,7 +80,7 @@ const GroupDetails: React.FC = () => {
           height: '100vh'
         }}
       >
-        <CircularProgress />
+        <CircularProgress aria-live="polite" />
       </Container>
     );
   }
@@ -93,7 +90,8 @@ const GroupDetails: React.FC = () => {
       <Box display="flex" justifyContent="space-between" mb={3}>
         <Button
           variant="outlined"
-          onClick={() => navigate('/groups')} // Navigate to the GroupList route
+          onClick={() => navigate('/groups')}
+          aria-label="Back to Groups"
         >
           Back to Groups
         </Button>
@@ -103,6 +101,7 @@ const GroupDetails: React.FC = () => {
             color="primary"
             onClick={handleEditOpen}
             sx={{ mr: 2 }}
+            aria-label="Edit Group"
           >
             Edit Group
           </Button>
@@ -111,6 +110,7 @@ const GroupDetails: React.FC = () => {
             color="error"
             onClick={handleDelete}
             sx={{ mr: 2 }}
+            aria-label="Delete Group"
           >
             Delete Group
           </Button>
@@ -118,6 +118,7 @@ const GroupDetails: React.FC = () => {
             variant="contained"
             color="secondary"
             onClick={() => setIsChatPanelOpen(true)}
+            aria-label="Open Chat"
           >
             Open Chat
           </Button>
@@ -141,8 +142,19 @@ const GroupDetails: React.FC = () => {
           <Typography>No details available for this group.</Typography>
         )}
       </Box>
-      <EditGroup open={isEditDialogOpen} onClose={handleEditClose} groupId={groupId!} onGroupUpdated={handleGroupUpdated} />
-      <ChatPanel open={isChatPanelOpen} onClose={() => setIsChatPanelOpen(false)} groupId={groupId!} />
+      <EditGroup 
+        open={isEditDialogOpen} 
+        onClose={handleEditClose} 
+        groupId={groupId!} 
+        onGroupUpdated={handleGroupUpdated}
+        aria-label="Edit Group Dialog"
+      />
+      <ChatPanel 
+        open={isChatPanelOpen} 
+        onClose={() => setIsChatPanelOpen(false)} 
+        groupId={groupId!}
+        aria-label="Chat Panel"
+      />
     </Container>
   );
 };

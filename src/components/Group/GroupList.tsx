@@ -79,7 +79,7 @@ const GroupList: React.FC = () => {
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
-        <CircularProgress />
+        <CircularProgress aria-live="polite" />
       </Box>
     );
   }
@@ -91,6 +91,7 @@ const GroupList: React.FC = () => {
           variant="contained"
           color="primary"
           onClick={handleCreateGroupOpen}
+          aria-label="Create new group"
         >
           Create New Group
         </Button>
@@ -99,7 +100,7 @@ const GroupList: React.FC = () => {
         </Typography>
       </Box>
       <Paper elevation={3} sx={{ padding: 2 }}>
-        <List>
+        <List aria-label="Group list">
           {groups.map((group) => (
             <ListItem
               component={Link}
@@ -113,6 +114,8 @@ const GroupList: React.FC = () => {
                   cursor: 'pointer',
                 },
               }}
+              button
+              aria-label={`Group: ${group.title}`}
             >
               <ListItemText
                 primary={
@@ -135,14 +138,15 @@ const GroupList: React.FC = () => {
                   </Box>
                 }
               />
-              <IconButton component={Link} to={`/groups/${group.id}`} sx={{ ml: 'auto' }} color="primary">
-                <ArrowForward />
-              </IconButton>
             </ListItem>
           ))}
         </List>
       </Paper>
-      <CreateGroup open={isCreateGroupOpen} onClose={handleCreateGroupClose} onGroupCreated={handleGroupCreated} />
+      <CreateGroup 
+        open={isCreateGroupOpen} 
+        onClose={handleCreateGroupClose} 
+        onGroupCreated={handleGroupCreated} 
+      />
     </Container>
   );
 };

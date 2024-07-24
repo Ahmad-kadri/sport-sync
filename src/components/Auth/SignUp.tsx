@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { TextField, Button, Container, Alert, Typography, Box, CircularProgress } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
@@ -13,6 +13,7 @@ const SignUp: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const errorRef = useRef<HTMLDivElement>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,8 +32,6 @@ const SignUp: React.FC = () => {
         email,
         createdAt: new Date()
       });
-
-      // Redirect to sign-in page or another page
       navigate('/'); 
     } catch (error: any) {
       setError(error.message); 
@@ -41,6 +40,12 @@ const SignUp: React.FC = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (error && errorRef.current) {
+      errorRef.current.focus();
+    }
+  }, [error]);
 
   return (
     <Container maxWidth="xs" sx={{ mt: 8 }}>
@@ -55,6 +60,7 @@ const SignUp: React.FC = () => {
           fullWidth
           margin="normal"
           required
+          aria-required="true"
         />
         <TextField
           label="Surname"
@@ -63,6 +69,7 @@ const SignUp: React.FC = () => {
           fullWidth
           margin="normal"
           required
+          aria-required="true"
         />
         <TextField
           label="Email"
@@ -72,6 +79,7 @@ const SignUp: React.FC = () => {
           margin="normal"
           type="email"
           required
+          aria-required="true"
         />
         <TextField
           label="Password"
@@ -81,8 +89,13 @@ const SignUp: React.FC = () => {
           fullWidth
           margin="normal"
           required
+          aria-required="true"
         />
-        {error && <Alert severity="error">{error}</Alert>}
+        {error && (
+          <Alert severity="error" tabIndex={-1} ref={errorRef}>
+            {error}
+          </Alert>
+        )}
         <Button 
           type="submit" 
           variant="contained" 

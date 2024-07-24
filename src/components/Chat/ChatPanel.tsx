@@ -1,5 +1,4 @@
-// src/components/ChatPanel.tsx
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Drawer, TextField, IconButton, Box } from '@mui/material';
 import { Send as SendIcon, Close as CloseIcon } from '@mui/icons-material';
 import MessageTimeline from './MessageTimeline';
@@ -27,27 +26,39 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ open, onClose, groupId }) => {
           boxSizing: 'border-box',
         },
       }}
+      aria-labelledby="chat-panel-title"
+      aria-describedby="chat-panel-description"
     >
-    
       <Box sx={{ paddingX: 2, display: 'flex', flexDirection: 'column', height: '100%' }}>
-      <Box>
-        <IconButton onClick={onClose} color="primary" sx={{ marginX: 2, marginY: 1}}>
-          <CloseIcon />
-        </IconButton>
-      </Box>
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+          <IconButton 
+            onClick={onClose} 
+            color="primary" 
+            sx={{ margin: 1 }}
+            aria-label="Close chat panel"
+          >
+            <CloseIcon />
+          </IconButton>
+        </Box>
         <MessageTimeline messages={messages} />
-        <Box display='flex' margin={1}>
-        <TextField
-          label="Type a message"
-          fullWidth
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
-          sx={{ marginTop: 2 }}
+        <Box sx={{ display: 'flex', margin: 1 }}>
+          <TextField
+            label="Type a message"
+            fullWidth
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+            sx={{ marginTop: 2 }}
+            aria-label="Message input"
           />
-        <IconButton onClick={sendMessage} color="primary" sx={{ marginLeft: 2, marginTop: 2, borderRadius: 1,padding: 2, backgroundColor: "aliceblue" }}>
-         <SendIcon />
-        </IconButton>
+          <IconButton 
+            onClick={sendMessage} 
+            color="primary" 
+            sx={{ marginLeft: 2, marginTop: 2, borderRadius: 1, padding: 2, backgroundColor: "aliceblue" }}
+            aria-label="Send message"
+          >
+            <SendIcon />
+          </IconButton>
         </Box>
       </Box>
     </Drawer>

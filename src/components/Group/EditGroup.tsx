@@ -37,12 +37,13 @@ const EditGroup: React.FC<EditGroupProps> = ({ open, onClose, groupId, onGroupUp
   const participants = useFetchParticipants(groupId);
   const allUsers = useFetchUsers(); 
 
-  const [users, setUsers] = useState<User[]>([])
+  const [users, setUsers] = useState<User[]>([]);
   const [title, setTitle] = useState(group?.title || '');
   const [description, setDescription] = useState(group?.description || '');
   const [location, setLocation] = useState(group?.location || '');
   const [time, setTime] = useState(group?.time || '');
   const [selectedParticipants, setSelectedParticipants] = useState<Participant[]>([]);
+  const [snackMessage, setSnackMessage] = useState(''); // New state for Snackbar message
 
   useEffect(() => {
     if (group) {
@@ -60,16 +61,21 @@ const EditGroup: React.FC<EditGroupProps> = ({ open, onClose, groupId, onGroupUp
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await updateGroup({
-      groupId,
-      title,
-      description,
-      location,
-      time,
-      selectedParticipants,
-    });
-    onGroupUpdated(); // Notify parent component of the update
-    onClose(); // Close the dialog
+    try {
+      await updateGroup({
+        groupId,
+        title,
+        description,
+        location,
+        time,
+        selectedParticipants,
+      });
+      onGroupUpdated();
+      onClose(); 
+      setSnackMessage('Group updated successfully!');
+    } catch (error) {
+      setSnackMessage('Error updating group. Please try again.');
+    }
   };
 
   if (groupLoading) {
@@ -77,10 +83,15 @@ const EditGroup: React.FC<EditGroupProps> = ({ open, onClose, groupId, onGroupUp
   }
 
   return (
-    <Dialog open={open} onClose={onClose}>
-      <DialogTitle>Edit Group</DialogTitle>
+    <Dialog 
+      open={open} 
+      onClose={onClose}
+      aria-labelledby="edit-group-dialog-title"
+      aria-describedby="edit-group-dialog-description"
+    >
+      <DialogTitle id="edit-group-dialog-title">Edit Group</DialogTitle>
       <DialogContent>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} aria-labelledby="edit-group-form">
           <TextField
             label="Title"
             value={title}
@@ -88,6 +99,7 @@ const EditGroup: React.FC<EditGroupProps> = ({ open, onClose, groupId, onGroupUp
             fullWidth
             margin="normal"
             required
+            aria-required="true"
           />
           <TextField
             label="Description"
@@ -96,6 +108,7 @@ const EditGroup: React.FC<EditGroupProps> = ({ open, onClose, groupId, onGroupUp
             fullWidth
             margin="normal"
             required
+            aria-required="true"
           />
           <TextField
             label="Location"
@@ -104,6 +117,7 @@ const EditGroup: React.FC<EditGroupProps> = ({ open, onClose, groupId, onGroupUp
             fullWidth
             margin="normal"
             required
+            aria-required="true"
           />
           <TextField
             label="Time"
@@ -113,6 +127,7 @@ const EditGroup: React.FC<EditGroupProps> = ({ open, onClose, groupId, onGroupUp
             fullWidth
             margin="normal"
             required
+            aria-required="true"
           />
           <Autocomplete
             multiple
@@ -123,6 +138,7 @@ const EditGroup: React.FC<EditGroupProps> = ({ open, onClose, groupId, onGroupUp
             renderInput={(params) => (
               <TextField {...params} variant="outlined" label="Add Participants" placeholder="Select participants" />
             )}
+            aria-required="true"
           />
           <DialogActions>
             <Button onClick={onClose} color="primary">
@@ -135,9 +151,14 @@ const EditGroup: React.FC<EditGroupProps> = ({ open, onClose, groupId, onGroupUp
         </form>
       </DialogContent>
 
-      <Snackbar open={!!message} autoHideDuration={6000} onClose={() => {}}>
-        <Alert onClose={() => {}} severity={message.includes('Error') ? 'error' : 'success'}>
-          {message}
+      <Snackbar 
+        open={!!snackMessage} 
+        autoHideDuration={6000} 
+        onClose={() => setSnackMessage('')} 
+        aria-live="polite"
+      >
+        <Alert onClose={() => setSnackMessage('')} severity={snackMessage.includes('Error') ? 'error' : 'success'}>
+          {snackMessage}
         </Alert>
       </Snackbar>
     </Dialog>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { TextField, Button, Container, Alert, Typography, Box, CircularProgress } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { signInWithEmailAndPassword } from 'firebase/auth';
@@ -7,9 +7,10 @@ import { auth } from '../../firebase';
 const SignIn: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState<string | null>(null); // For error handling
-  const [loading, setLoading] = useState(false); // For loading state
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const errorRef = useRef<HTMLDivElement>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,8 +30,14 @@ const SignIn: React.FC = () => {
   };
 
   const handleSignUpClick = () => {
-    navigate('/signup'); // Redirect to sign-up page
+    navigate('/signup');
   };
+
+  useEffect(() => {
+    if (error && errorRef.current) {
+      errorRef.current.focus();
+    }
+  }, [error]);
 
   return (
     <Container maxWidth="xs" sx={{ mt: 8 }}>
@@ -46,6 +53,7 @@ const SignIn: React.FC = () => {
           margin="normal"
           type="email"
           required
+          aria-required="true"
         />
         <TextField
           label="Password"
@@ -55,8 +63,13 @@ const SignIn: React.FC = () => {
           fullWidth
           margin="normal"
           required
+          aria-required="true"
         />
-        {error && <Alert severity="error">{error}</Alert>}
+        {error && (
+          <Alert severity="error" tabIndex={-1} ref={errorRef}>
+            {error}
+          </Alert>
+        )}
         <Button 
           type="submit" 
           variant="contained" 
