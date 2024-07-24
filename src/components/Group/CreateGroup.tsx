@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -6,13 +6,13 @@ import {
   DialogActions,
   TextField,
   Button,
-  Container,
   Snackbar,
   Alert,
-  Autocomplete
+  Autocomplete,
+  Container,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { db, auth } from '../../firebase'; // Ensure `auth` is imported
+import { db, auth } from '../../firebase';
 import { collection, addDoc, query, getDocs, where } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 
@@ -23,21 +23,25 @@ interface User {
   email: string;
 }
 
-const CreateGroup: React.FC = () => {
+interface CreateGroupProps {
+  open: boolean;
+  onClose: () => void;
+  onGroupCreated: () => void; // New prop for the callback function
+}
+
+const CreateGroup: React.FC<CreateGroupProps> = ({ open, onClose, onGroupCreated }) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [location, setLocation] = useState('');
   const [time, setTime] = useState('');
-  const [open, setOpen] = useState(false);
   const [message, setMessage] = useState('');
   const [selectedParticipants, setSelectedParticipants] = useState<User[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  // Fetch current user ID
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, user => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         setCurrentUserId(user.uid);
       }
@@ -46,16 +50,15 @@ const CreateGroup: React.FC = () => {
     return () => unsubscribe();
   }, []);
 
-  // Fetch users from Firestore
   const fetchUsers = async () => {
     try {
       const usersCollection = collection(db, 'users');
-      const q = query(usersCollection, where('email', '!=', '')); // Adjust the query as needed
+      const q = query(usersCollection, where('email', '!=', ''));
       const querySnapshot = await getDocs(q);
       const usersList: User[] = [];
       querySnapshot.forEach((doc) => {
         const user = { id: doc.id, ...doc.data() } as User;
-        if (user.id !== currentUserId) { // Filter out the current user
+        if (user.id !== currentUserId) {
           usersList.push(user);
         }
       });
@@ -65,18 +68,12 @@ const CreateGroup: React.FC = () => {
     }
   };
 
-  // Open dialog and fetch users
-  const handleClickOpen = () => {
-    fetchUsers();
-    setOpen(true);
-  };
+  useEffect(() => {
+    if (open) {
+      fetchUsers();
+    }
+  }, [open]);
 
-  // Close dialog
-  const handleClose = () => {
-    setOpen(false);
-  };
-
-  // Add group with selected participants
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -88,19 +85,15 @@ const CreateGroup: React.FC = () => {
         createdAt: new Date(),
       });
 
-      // Add selected participants to the group
       const participantsCollection = collection(db, 'groups', docRef.id, 'participants');
-      await Promise.all(
-        selectedParticipants.map(user =>
-          addDoc(participantsCollection, { ...user })
-        )
-      );
+      await Promise.all(selectedParticipants.map((user) => addDoc(participantsCollection, { ...user })));
 
       setMessage(`Group created successfully! ID: ${docRef.id}`);
-      setOpen(false);
+      onClose();
+      onGroupCreated(); // Call the callback function to update the group list
       setTimeout(() => {
         navigate('/groups');
-      }, 2000); // Navigate after 2 seconds to show confirmation
+      }, 2000);
     } catch (error) {
       console.error('Error creating group:', error);
       setMessage('Error creating group. Please try again.');
@@ -109,11 +102,7 @@ const CreateGroup: React.FC = () => {
 
   return (
     <Container>
-      <Button variant="contained" color="primary" onClick={handleClickOpen}>
-        Create Group
-      </Button>
-
-      <Dialog open={open} onClose={handleClose}>
+      <Dialog open={open} onClose={onClose}>
         <DialogTitle>Create a New Group</DialogTitle>
         <DialogContent>
           <form onSubmit={handleSubmit}>
@@ -123,6 +112,7 @@ const CreateGroup: React.FC = () => {
               onChange={(e) => setTitle(e.target.value)}
               fullWidth
               margin="normal"
+              required
             />
             <TextField
               label="Description"
@@ -130,6 +120,7 @@ const CreateGroup: React.FC = () => {
               onChange={(e) => setDescription(e.target.value)}
               fullWidth
               margin="normal"
+              required
             />
             <TextField
               label="Location"
@@ -137,6 +128,7 @@ const CreateGroup: React.FC = () => {
               onChange={(e) => setLocation(e.target.value)}
               fullWidth
               margin="normal"
+              required
             />
             <TextField
               label="Time"
@@ -145,8 +137,8 @@ const CreateGroup: React.FC = () => {
               onChange={(e) => setTime(e.target.value)}
               fullWidth
               margin="normal"
+              required
             />
-
             <Autocomplete
               multiple
               options={users}
@@ -156,9 +148,8 @@ const CreateGroup: React.FC = () => {
                 <TextField {...params} variant="outlined" label="Add Participants" placeholder="Select participants" />
               )}
             />
-
             <DialogActions>
-              <Button onClick={handleClose} color="primary">
+              <Button onClick={onClose} color="primary">
                 Cancel
               </Button>
               <Button type="submit" color="primary">

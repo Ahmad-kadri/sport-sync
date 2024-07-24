@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TextField, Button, Container, Alert, Typography } from '@mui/material';
+import { TextField, Button, Container, Alert, Typography, Box, CircularProgress } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../../firebase';
@@ -33,9 +33,9 @@ const SignIn: React.FC = () => {
   };
 
   return (
-    <Container>
-      <form onSubmit={handleSubmit}>
-        <Typography variant="h4" gutterBottom>
+    <Container maxWidth="xs" sx={{ mt: 8 }}>
+      <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+        <Typography variant="h4" gutterBottom textAlign="center">
           Sign In
         </Typography>
         <TextField
@@ -56,25 +56,25 @@ const SignIn: React.FC = () => {
           margin="normal"
           required
         />
-        {error && <Alert severity="error" style={{ margin: '16px 0' }}>{error}</Alert>}
+        {error && <Alert severity="error">{error}</Alert>}
         <Button 
           type="submit" 
           variant="contained" 
           color="primary"
           disabled={loading}
+          fullWidth
         >
-          {loading ? 'Signing In...' : 'Sign In'}
+          {loading ? <CircularProgress size={24} /> : 'Sign In'}
         </Button>
         <Button
-          sx={{display: 'block'}}
           variant="outlined"
           color="secondary"
-          style={{ marginTop: '16px' }}
           onClick={handleSignUpClick}
+          fullWidth
         >
           Don't have an account? Sign Up
         </Button>
-      </form>
+      </Box>
     </Container>
   );
 };

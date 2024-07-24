@@ -11,11 +11,14 @@ import {
   Paper,
   Box,
   Divider,
-  IconButton
+  IconButton,
+  Button,
+  CircularProgress,
 } from '@mui/material';
 import { ArrowForward } from '@mui/icons-material';
+import CreateGroup from './CreateGroup'; // Import the CreateGroup component
 
-interface Group {
+export interface Group {
   id: string;
   title: string;
   description: string;
@@ -23,31 +26,78 @@ interface Group {
   time: string;
 }
 
+export interface User {
+  id: string;
+  name: string;
+  surname: string;
+  email: string;
+}
+
+export interface Participant {
+  id: string;
+  name: string;
+  surname: string;
+  email: string;
+}
+
 const GroupList: React.FC = () => {
   const [groups, setGroups] = useState<Group[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [isCreateGroupOpen, setIsCreateGroupOpen] = useState(false);
+
+  const fetchGroups = async () => {
+    try {
+      const querySnapshot = await getDocs(collection(db, 'groups'));
+      const groupList = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as Group[];
+      setGroups(groupList);
+    } catch (error) {
+      console.error('Error fetching groups:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchGroups = async () => {
-      try {
-        const querySnapshot = await getDocs(collection(db, 'groups'));
-        const groupList = querySnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        })) as Group[];
-        setGroups(groupList);
-      } catch (error) {
-        console.error('Error fetching groups:', error);
-      }
-    };
-
     fetchGroups();
   }, []);
 
+  const handleCreateGroupOpen = () => {
+    setIsCreateGroupOpen(true);
+  };
+
+  const handleCreateGroupClose = () => {
+    setIsCreateGroupOpen(false);
+  };
+
+  const handleGroupCreated = () => {
+    fetchGroups();
+  };
+
+  if (loading) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
+        <CircularProgress />
+      </Box>
+    );
+  }
+
   return (
-    <Container maxWidth="md" sx={{ marginTop: 4 }}>
-      <Typography variant="h4" gutterBottom align="center">
-        Groups List
-      </Typography>
+    <Container>
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3} mt={4}>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleCreateGroupOpen}
+        >
+          Create New Group
+        </Button>
+        <Typography variant="h4">
+          Groups List
+        </Typography>
+      </Box>
       <Paper elevation={3} sx={{ padding: 2 }}>
         <List>
           {groups.map((group) => (
@@ -60,8 +110,8 @@ const GroupList: React.FC = () => {
                 borderRadius: 2,
                 '&:hover': {
                   backgroundColor: '#f5f5f5',
-                  cursor: 'pointer'
-                }
+                  cursor: 'pointer',
+                },
               }}
             >
               <ListItemText
@@ -85,18 +135,14 @@ const GroupList: React.FC = () => {
                   </Box>
                 }
               />
-              <IconButton
-                component={Link}
-                to={`/groups/${group.id}`}
-                sx={{ ml: 'auto' }}
-                color="primary"
-              >
+              <IconButton component={Link} to={`/groups/${group.id}`} sx={{ ml: 'auto' }} color="primary">
                 <ArrowForward />
               </IconButton>
             </ListItem>
           ))}
         </List>
       </Paper>
+      <CreateGroup open={isCreateGroupOpen} onClose={handleCreateGroupClose} onGroupCreated={handleGroupCreated} />
     </Container>
   );
 };

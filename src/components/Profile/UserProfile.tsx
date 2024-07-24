@@ -1,5 +1,3 @@
-// src/components/Profile.tsx
-
 import React, { useEffect, useState } from 'react';
 import {
   Container,
@@ -26,6 +24,7 @@ import useUserInfo from '../Hooks/useUserInfo';
 const UserProfile: React.FC = () => {
   const { userInfo, loading, error: fetchError, refetchUserInfo } = useUserInfo();
   const [openEditDialog, setOpenEditDialog] = useState(false);
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
@@ -36,7 +35,7 @@ const UserProfile: React.FC = () => {
       try {
         await deleteDoc(doc(db, 'users', auth.currentUser.uid));
         await deleteUser(auth.currentUser);
-        setOpenEditDialog(false)
+        setOpenDeleteDialog(false);
         navigate('/signup');
       } catch (error) {
         console.error('Error deleting account:', error);
@@ -90,7 +89,7 @@ const UserProfile: React.FC = () => {
               <Button variant="contained" color="primary" onClick={() => setOpenEditDialog(true)}>
                 Edit Profile
               </Button>
-              <Button variant="contained" color="secondary" onClick={handleDelete}>
+              <Button variant="contained" color="secondary" onClick={() => setOpenDeleteDialog(true)}>
                 Delete Account
               </Button>
             </Box>
@@ -99,6 +98,18 @@ const UserProfile: React.FC = () => {
               onClose={() => setOpenEditDialog(false)}
               userInfo={userInfo}
             />
+            <Dialog open={openDeleteDialog} onClose={() => setOpenDeleteDialog(false)}>
+              <DialogTitle>Confirm Delete</DialogTitle>
+              <DialogContent>
+                <Typography>Are you sure you want to delete your account? This action cannot be undone.</Typography>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={() => setOpenDeleteDialog(false)}>Cancel</Button>
+                <Button onClick={handleDelete} color="secondary" variant="contained">
+                  Confirm
+                </Button>
+              </DialogActions>
+            </Dialog>
           </>
         ) : (
           <Typography>No user information available.</Typography>

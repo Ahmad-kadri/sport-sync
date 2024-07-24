@@ -1,22 +1,13 @@
+// src/components/GroupDetails.tsx
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { db } from '../../firebase';
-import { doc, onSnapshot } from 'firebase/firestore';
-import {
-  Container,
-  Typography,
-  Paper,
-  Box,
-  CircularProgress,
-  Divider,
-  List,
-  ListItem,
-  ListItemText,
-  Button
-} from '@mui/material';
-import useFetchParticipants from '../Hooks/useFetchParticipants';
+import { doc, onSnapshot, deleteDoc } from 'firebase/firestore';
+import { Container, Typography, Box, CircularProgress, Button } from '@mui/material';
 import GroupDetailsHeader from './GroupDetailsHeader';
 import GroupParticipants from './GroupParticipants';
+import EditGroup from './EditGroup';
+import ChatPanel from '../Chat/ChatPanel';
 
 interface Group {
   id: string;
@@ -30,7 +21,9 @@ const GroupDetails: React.FC = () => {
   const { groupId } = useParams<{ groupId: string }>();
   const [group, setGroup] = useState<Group | null>(null);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();  // Initialize the navigate function
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isChatPanelOpen, setIsChatPanelOpen] = useState(false); // State for chat panel
+  const navigate = useNavigate(); // Initialize the navigate function
 
   useEffect(() => {
     if (!groupId) return;
@@ -49,6 +42,37 @@ const GroupDetails: React.FC = () => {
     };
   }, [groupId]);
 
+  const handleEditOpen = () => {
+    setIsEditDialogOpen(true);
+  };
+
+  const handleEditClose = () => {
+    setIsEditDialogOpen(false);
+  };
+
+  const handleDelete = async () => {
+    if (groupId) {
+      try {
+        await deleteDoc(doc(db, 'groups', groupId));
+        navigate('/groups');
+      } catch (error) {
+        console.error('Error deleting group:', error);
+      }
+    }
+  };
+
+  const handleGroupUpdated = () => {
+    // Refresh the group details to reflect the updates
+    setLoading(true);
+    const groupDocRef = doc(db, 'groups', groupId!);
+    onSnapshot(groupDocRef, (docSnapshot) => {
+      if (docSnapshot.exists()) {
+        setGroup({ id: docSnapshot.id, ...docSnapshot.data() } as Group);
+        setLoading(false);
+      }
+    });
+  };
+
   if (loading) {
     return (
       <Container
@@ -66,13 +90,39 @@ const GroupDetails: React.FC = () => {
 
   return (
     <Container sx={{ marginTop: 4 }}>
-      <Button
-        variant="outlined"
-        onClick={() => navigate('/groups')} // Navigate to the GroupList route
-        sx={{ mb: 3 }}
-      >
-        Back to Groups
-      </Button>
+      <Box display="flex" justifyContent="space-between" mb={3}>
+        <Button
+          variant="outlined"
+          onClick={() => navigate('/groups')} // Navigate to the GroupList route
+        >
+          Back to Groups
+        </Button>
+        <Box>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleEditOpen}
+            sx={{ mr: 2 }}
+          >
+            Edit Group
+          </Button>
+          <Button
+            variant="contained"
+            color="error"
+            onClick={handleDelete}
+            sx={{ mr: 2 }}
+          >
+            Delete Group
+          </Button>
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={() => setIsChatPanelOpen(true)}
+          >
+            Open Chat
+          </Button>
+        </Box>
+      </Box>
       <Box  
         sx={{ 
           padding: 3, 
@@ -83,12 +133,16 @@ const GroupDetails: React.FC = () => {
         }}
       >
         {group ? (
-          <GroupDetailsHeader group={group} />
+          <>
+            <GroupDetailsHeader group={group} />
+            <GroupParticipants groupId={groupId!} />
+          </>
         ) : (
           <Typography>No details available for this group.</Typography>
         )}
-        <GroupParticipants groupId={groupId!} />
       </Box>
+      <EditGroup open={isEditDialogOpen} onClose={handleEditClose} groupId={groupId!} onGroupUpdated={handleGroupUpdated} />
+      <ChatPanel open={isChatPanelOpen} onClose={() => setIsChatPanelOpen(false)} groupId={groupId!} />
     </Container>
   );
 };

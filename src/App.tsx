@@ -19,7 +19,6 @@ const App: React.FC = () => {
       setUser(currentUser);
     });
 
-    // Clean up the subscription on unmount
     return () => unsubscribe();
   }, []);
 
@@ -32,7 +31,6 @@ const App: React.FC = () => {
         <Route path="/profile" element={<UserProfile />} />
         <Route path="/groups" element={<GroupList />} />
         <Route path="/groups/:groupId" element={<GroupDetails />} />
-        <Route path="/create-group" element={user ? <CreateGroup /> : <SignIn />} />
         <Route path="/" element={<GroupList />} />
       </Routes>
     </Router>

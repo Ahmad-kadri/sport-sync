@@ -1,6 +1,5 @@
-// src/components/Auth/SignUp.tsx
 import React, { useState } from 'react';
-import { TextField, Button, Container, Alert, Typography } from '@mui/material';
+import { TextField, Button, Container, Alert, Typography, Box, CircularProgress } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth, db } from '../../firebase';
@@ -44,9 +43,9 @@ const SignUp: React.FC = () => {
   };
 
   return (
-    <Container>
-      <form onSubmit={handleSubmit}>
-        <Typography variant="h4" gutterBottom>
+    <Container maxWidth="xs" sx={{ mt: 8 }}>
+      <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+        <Typography variant="h4" gutterBottom textAlign="center">
           Sign Up
         </Typography>
         <TextField
@@ -83,24 +82,25 @@ const SignUp: React.FC = () => {
           margin="normal"
           required
         />
-        {error && <Alert severity="error" style={{ margin: '16px 0' }}>{error}</Alert>}
+        {error && <Alert severity="error">{error}</Alert>}
         <Button 
           type="submit" 
           variant="contained" 
           color="primary"
           disabled={loading}
+          fullWidth
         >
-          {loading ? 'Signing Up...' : 'Sign Up'}
+          {loading ? <CircularProgress size={24} /> : 'Sign Up'}
         </Button>
         <Button
           variant="outlined"
           color="secondary"
-          style={{ marginTop: '16px' }}
           onClick={() => navigate('/signin')}
+          fullWidth
         >
           Already have an account? Sign In
         </Button>
-      </form>
+      </Box>
     </Container>
   );
 }
