@@ -10,6 +10,7 @@ import GroupList from './components/Group/GroupList';
 import GroupDetails from './components/Group/GroupDetail';
 import CreateGroup from './components/Group/CreateGroup';
 import UserProfile from './components/Profile/UserProfile';
+import ProtectedRoute from './components/PrivateRoute';
 
 const App: React.FC = () => {
   const [user, setUser] = useState<any>(null);
@@ -19,22 +20,44 @@ const App: React.FC = () => {
       setUser(currentUser);
     });
 
+    // Clean up the subscription on unmount
     return () => unsubscribe();
   }, []);
 
   return (
     <Router>
-      {user && <Navbar  user={user}/>} {/* Render Navbar only if user is logged in */}
+      {user && <Navbar user={user} />} {/* Render Navbar only if user is logged in */}
       <Routes>
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
-        <Route path="/profile" element={<UserProfile />} />
-        <Route path="/groups" element={<GroupList />} />
-        <Route path="/groups/:groupId" element={<GroupDetails />} />
-        <Route path="/" element={<GroupList />} />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <UserProfile />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/groups"
+          element={
+            <ProtectedRoute>
+              <GroupList />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/groups/:groupId"
+          element={
+            <ProtectedRoute>
+              <GroupDetails />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/" element={<ProtectedRoute><GroupList /></ProtectedRoute>} />
       </Routes>
     </Router>
   );
-}
+};
 
 export default App;

@@ -1,6 +1,6 @@
 // src/components/MessageTimeline.tsx
 
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { List, ListItem, Typography, Box } from '@mui/material';
 import { User } from '../Group/GroupList';
 import useUserInfo from '../Hooks/useUserInfo';
@@ -18,9 +18,16 @@ interface MessageTimelineProps {
 
 const MessageTimeline: React.FC<MessageTimelineProps> = ({ messages }) => {
   const { userInfo } = useUserInfo()
+  const listRef = useRef<HTMLUListElement>(null);
+
+  useEffect(() => {
+    if (listRef.current) {
+      listRef.current.scrollTop = listRef.current.scrollHeight;
+    }
+  }, [messages]);
 
   return (
-    <List sx={{ flexGrow: 1, overflowY: 'auto', padding: 2 }}>
+    <List ref={listRef} sx={{ flexGrow: 1, overflowY: 'auto', padding: 2 }}>
       {messages.map((msg) => (
         <ListItem key={msg.id} sx={{ padding: 0 }}>
           <Box
@@ -28,6 +35,7 @@ const MessageTimeline: React.FC<MessageTimelineProps> = ({ messages }) => {
               maxWidth: '80%',
               marginLeft: msg.sender.id === userInfo?.id ? 'auto' : '0',
               marginRight: msg.sender.id === userInfo?.id ? '0' : 'auto',
+              marginBottom:2,
               backgroundColor: msg.sender.id === userInfo?.id ? '#dcf8c6' : '#fff',
               borderRadius: 2,
               padding: 2,
