@@ -8,7 +8,6 @@ import SignIn from './components/Auth/SignIn';
 import SignUp from './components/Auth/SignUp';
 import GroupList from './components/Group/GroupList';
 import GroupDetails from './components/Group/GroupDetail';
-import CreateGroup from './components/Group/CreateGroup';
 import UserProfile from './components/Profile/UserProfile';
 import ProtectedRoute from './components/PrivateRoute';
 

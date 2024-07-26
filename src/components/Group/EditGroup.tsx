@@ -8,21 +8,8 @@ import {
   Button,
   Snackbar,
   Alert,
-  Autocomplete,
-  Container,
 } from '@mui/material';
 import useGroup from '../Hooks/useGroup';
-import useUpdateGroup from '../Hooks/useUpdateGroup';
-import useFetchParticipants from '../Hooks/useFetchParticipants';
-import { User } from './GroupList';
-import useFetchUsers from '../Hooks/useFetchUsers';
-
-interface Participant {
-  id: string;
-  name: string;
-  surname: string;
-  email: string;
-}
 
 interface EditGroupProps {
   open: boolean;
@@ -32,18 +19,12 @@ interface EditGroupProps {
 }
 
 const EditGroup: React.FC<EditGroupProps> = ({ open, onClose, groupId, onGroupUpdated }) => {
-  const { group, loading: groupLoading } = useGroup(groupId);
-  const { updateGroup, message } = useUpdateGroup();
-  const participants = useFetchParticipants(groupId);
-  const allUsers = useFetchUsers(); 
-
-  const [users, setUsers] = useState<User[]>([]);
-  const [title, setTitle] = useState(group?.title || '');
-  const [description, setDescription] = useState(group?.description || '');
-  const [location, setLocation] = useState(group?.location || '');
-  const [time, setTime] = useState(group?.time || '');
-  const [selectedParticipants, setSelectedParticipants] = useState<Participant[]>([]);
-  const [snackMessage, setSnackMessage] = useState(''); // New state for Snackbar message
+  const { group, loading: groupLoading, updateGroup, message } = useGroup(groupId);
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [location, setLocation] = useState('');
+  const [time, setTime] = useState('');
+  const [snackMessage, setSnackMessage] = useState('');
 
   useEffect(() => {
     if (group) {
@@ -51,13 +32,14 @@ const EditGroup: React.FC<EditGroupProps> = ({ open, onClose, groupId, onGroupUp
       setDescription(group.description);
       setLocation(group.location);
       setTime(group.time);
-      setSelectedParticipants(participants);
     }
-  }, [group, groupId]);
+  }, [group]);
 
   useEffect(() => {
-    setUsers(allUsers.filter(u => !selectedParticipants.some(selected => selected.id === u.id)));
-  }, [selectedParticipants, allUsers]);
+    if (message) {
+      setSnackMessage(message);
+    }
+  }, [message]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -68,11 +50,9 @@ const EditGroup: React.FC<EditGroupProps> = ({ open, onClose, groupId, onGroupUp
         description,
         location,
         time,
-        selectedParticipants,
       });
       onGroupUpdated();
-      onClose(); 
-      setSnackMessage('Group updated successfully!');
+      onClose();
     } catch (error) {
       setSnackMessage('Error updating group. Please try again.');
     }
@@ -83,8 +63,8 @@ const EditGroup: React.FC<EditGroupProps> = ({ open, onClose, groupId, onGroupUp
   }
 
   return (
-    <Dialog 
-      open={open} 
+    <Dialog
+      open={open}
       onClose={onClose}
       aria-labelledby="edit-group-dialog-title"
       aria-describedby="edit-group-dialog-description"
@@ -129,32 +109,21 @@ const EditGroup: React.FC<EditGroupProps> = ({ open, onClose, groupId, onGroupUp
             required
             aria-required="true"
           />
-          <Autocomplete
-            multiple
-            options={users}
-            getOptionLabel={(option) => `${option.name} ${option.surname} (${option.email})`}
-            value={selectedParticipants}
-            onChange={(event, newValue) => setSelectedParticipants(newValue)}
-            renderInput={(params) => (
-              <TextField {...params} variant="outlined" label="Add Participants" placeholder="Select participants" />
-            )}
-            aria-required="true"
-          />
           <DialogActions>
-            <Button onClick={onClose} color="primary">
+            <Button onClick={onClose} color="error">
               Cancel
             </Button>
-            <Button type="submit" color="primary">
+            <Button type="submit" color="success">
               Update Group
             </Button>
           </DialogActions>
         </form>
       </DialogContent>
 
-      <Snackbar 
-        open={!!snackMessage} 
-        autoHideDuration={6000} 
-        onClose={() => setSnackMessage('')} 
+      <Snackbar
+        open={!!snackMessage}
+        autoHideDuration={6000}
+        onClose={() => setSnackMessage('')}
         aria-live="polite"
       >
         <Alert onClose={() => setSnackMessage('')} severity={snackMessage.includes('Error') ? 'error' : 'success'}>

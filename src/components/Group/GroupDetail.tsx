@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { db } from '../../firebase';
 import { doc, onSnapshot, deleteDoc } from 'firebase/firestore';
-import { Container, Typography, Box, CircularProgress, Button } from '@mui/material';
-import GroupDetailsHeader from './GroupDetailsHeader';
-import GroupParticipants from './GroupParticipants';
+import { Container, CircularProgress } from '@mui/material';
 import EditGroup from './EditGroup';
 import ChatPanel from '../Chat/ChatPanel';
+import GroupDetailsActions from './GroupDetailsActions';
+import GroupDetailsContent from './GroupDetailsContent';
 
 interface Group {
   id: string;
@@ -87,61 +87,15 @@ const GroupDetails: React.FC = () => {
 
   return (
     <Container sx={{ marginTop: 4 }}>
-      <Box display="flex" justifyContent="space-between" mb={3}>
-        <Button
-          variant="outlined"
-          onClick={() => navigate('/groups')}
-          aria-label="Back to Groups"
-        >
-          Back to Groups
-        </Button>
-        <Box>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleEditOpen}
-            sx={{ mr: 2 }}
-            aria-label="Edit Group"
-          >
-            Edit Group
-          </Button>
-          <Button
-            variant="contained"
-            color="error"
-            onClick={handleDelete}
-            sx={{ mr: 2 }}
-            aria-label="Delete Group"
-          >
-            Delete Group
-          </Button>
-          <Button
-            variant="contained"
-            color="secondary"
-            onClick={() => setIsChatPanelOpen(true)}
-            aria-label="Open Chat"
-          >
-            Open Chat
-          </Button>
-        </Box>
-      </Box>
-      <Box  
-        sx={{ 
-          padding: 3, 
-          backgroundColor: '#f5f5f5', 
-          borderRadius: 2, 
-          boxShadow: 1,
-          mb: 3 
-        }}
-      >
-        {group ? (
-          <>
-            <GroupDetailsHeader group={group} />
-            <GroupParticipants groupId={groupId!} />
-          </>
-        ) : (
-          <Typography>No details available for this group.</Typography>
-        )}
-      </Box>
+      <GroupDetailsActions
+        onEditOpen={handleEditOpen}
+        onDelete={handleDelete}
+        onChatOpen={() => setIsChatPanelOpen(true)}
+      />
+      <GroupDetailsContent
+        group={group}
+        groupId={groupId!}
+      />
       <EditGroup 
         open={isEditDialogOpen} 
         onClose={handleEditClose} 
