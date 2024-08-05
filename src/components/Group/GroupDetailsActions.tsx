@@ -19,9 +19,10 @@ interface GroupDetailsActionsProps {
   onEditOpen: () => void;
   onDelete: () => void;
   onChatOpen: () => void;
+  onInviteOpen: () => void
 }
 
-const GroupDetailsActions: React.FC<GroupDetailsActionsProps> = ({ onEditOpen, onDelete, onChatOpen }) => {
+const GroupDetailsActions: React.FC<GroupDetailsActionsProps> = ({ onEditOpen, onDelete, onChatOpen, onInviteOpen }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const navigate = useNavigate();
@@ -45,7 +46,7 @@ const GroupDetailsActions: React.FC<GroupDetailsActionsProps> = ({ onEditOpen, o
   };
 
   const handleInviteClick = () => {
-    // Logic to invite participants
+    onInviteOpen()
     handleMenuClose();
   };
 

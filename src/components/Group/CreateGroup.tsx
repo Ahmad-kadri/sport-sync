@@ -15,6 +15,7 @@ import { useNavigate } from 'react-router-dom';
 import { db, auth } from '../../firebase';
 import { collection, addDoc, query, getDocs, where } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
+import useFetchUsers from '../Hooks/useFetchUsers';
 
 interface User {
   id: string;
@@ -26,7 +27,7 @@ interface User {
 interface CreateGroupProps {
   open: boolean;
   onClose: () => void;
-  onGroupCreated: () => void; // New prop for the callback function
+  onGroupCreated: () => void;
 }
 
 const CreateGroup: React.FC<CreateGroupProps> = ({ open, onClose, onGroupCreated }) => {
@@ -36,8 +37,9 @@ const CreateGroup: React.FC<CreateGroupProps> = ({ open, onClose, onGroupCreated
   const [time, setTime] = useState('');
   const [message, setMessage] = useState('');
   const [selectedParticipants, setSelectedParticipants] = useState<User[]>([]);
-  const [users, setUsers] = useState<User[]>([]);
+  const [allUsers, setallUsers] = useState<User[]>([]);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const {users} = useFetchUsers()
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -50,27 +52,10 @@ const CreateGroup: React.FC<CreateGroupProps> = ({ open, onClose, onGroupCreated
     return () => unsubscribe();
   }, []);
 
-  const fetchUsers = async () => {
-    try {
-      const usersCollection = collection(db, 'users');
-      const q = query(usersCollection, where('email', '!=', ''));
-      const querySnapshot = await getDocs(q);
-      const usersList: User[] = [];
-      querySnapshot.forEach((doc) => {
-        const user = { id: doc.id, ...doc.data() } as User;
-        if (user.id !== currentUserId) {
-          usersList.push(user);
-        }
-      });
-      setUsers(usersList);
-    } catch (error) {
-      console.error('Error fetching users:', error);
-    }
-  };
 
   useEffect(() => {
     if (open) {
-      fetchUsers();
+      setallUsers(users);
     }
   }, [open]);
 
@@ -145,7 +130,7 @@ const CreateGroup: React.FC<CreateGroupProps> = ({ open, onClose, onGroupCreated
             />
             <Autocomplete
               multiple
-              options={users}
+              options={allUsers}
               getOptionLabel={(option) => `${option.name} ${option.surname} (${option.email})`}
               onChange={(event, value) => setSelectedParticipants(value)}
               renderInput={(params) => (
